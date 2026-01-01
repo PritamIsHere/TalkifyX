@@ -2,22 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Menu, X, Sun, Moon } from "lucide-react";
 import { useThemeStore } from "../stores/useThemeStore";
-import { NavLink } from "react-router-dom";
-import AuthModal from "./AuthModal";
+import { Link, NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const isDark = useThemeStore((state) => state.isDarkMode);
   const setIsDark = useThemeStore((state) => state.toggleDarkMode);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState("login");
-
-  const openAuth = (mode) => {
-    setAuthMode(mode);
-    setAuthOpen(true);
-    setIsMenuOpen(false);
-  };
 
   const theme = {
     bg: isDark ? "bg-slate-950" : "bg-slate-50",
@@ -84,18 +74,19 @@ const Navbar = () => {
             </button>
 
             {/* Auth Buttons */}
-            <button
-              onClick={() => openAuth("login")}
+            <Link
+              to="/login"
               className={`text-sm font-semibold transition-colors ${theme.text} hover:text-cyan-500`}
             >
               Log in
-            </button>
-            <button
-              onClick={() => openAuth("register")} // <--- Added onclick
-              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all transform hover:-translate-y-0.5"
+            </Link>
+
+            <Link
+              to="/register"
+              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:shadow-cyan-500/40 transition-all"
             >
               Register
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Toggle */}
@@ -146,34 +137,28 @@ const Navbar = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-2">
-                  <button
-                    onClick={() => openAuth("login")} // <--- Added onclick
-                    className={`py-3 rounded-xl font-semibold border ${
+                  <Link
+                    to="/login"
+                    className={`py-3 rounded-xl font-semibold border text-center ${
                       isDark
                         ? "border-white/10 text-white"
                         : "border-slate-200 text-slate-800"
                     }`}
                   >
                     Log in
-                  </button>
-                  <button
-                    onClick={() => openAuth("register")}
-                    className="py-3 rounded-xl font-semibold bg-blue-600 text-white"
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="py-3 rounded-xl font-semibold bg-blue-600 text-white text-center"
                   >
                     Register
-                  </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        initialMode={authMode}
-        isDark={isDark}
-      />
     </>
   );
 };

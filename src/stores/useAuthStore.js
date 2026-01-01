@@ -22,9 +22,7 @@ const useAuthStore = create(
         });
 
         try {
-          const res = await api.post("/auth/login", {
-            userData,
-          });
+          const res = await api.post("/auth/login", userData);
           set({
             user: res.data.user,
             token: extractBearerToken(res.data.token),
@@ -42,7 +40,8 @@ const useAuthStore = create(
       // Logout Function
 
       logout: () => {
-        Cookies.remove("token");
+        // Cookies.remove("token");
+        localStorage.removeItem("token");
         set({
           user: null,
           token: null,
@@ -79,7 +78,7 @@ const useAuthStore = create(
       loadUser: async () => {
         if (!get().token) return;
         try {
-          const res = await api.get(`/user/current-user`);
+          const res = await api.get(`/user/me`);
           set({
             user: res.data.user,
             isAuthenticated: true,
@@ -91,8 +90,12 @@ const useAuthStore = create(
     }),
     {
       name: "token",
-      storage: createJSONStorage(() => cookieStorage),
-      partialize: (state) => ({ token: state.token }),
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        token: state.token,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
