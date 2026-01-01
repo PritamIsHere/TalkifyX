@@ -59,8 +59,6 @@ const useAuthStore = create(
         try {
           const res = await api.post("/auth/register", userData);
           set({
-            user: res.data.user,
-            token: extractBearerToken(res.data.token),
             loading: false,
             isAuthenticated: false,
             error: null,

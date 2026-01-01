@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import useAuthStore from "../../stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export const RegisterForm = ({ theme, onClose }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,7 @@ export const RegisterForm = ({ theme, onClose }) => {
   });
   const [localError, setLocalError] = useState("");
   const { register, loading, error: storeError } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,6 +34,8 @@ export const RegisterForm = ({ theme, onClose }) => {
       if (success) {
         onClose();
       }
+      navigate("/login");
+      toast.success("Register Successfully !!");
     } catch (error) {}
   };
 

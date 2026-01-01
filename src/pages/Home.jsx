@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
   Moon,
   Sun,
+  LogOut,
 } from "lucide-react";
 import { useThemeStore } from "../stores/useThemeStore";
 

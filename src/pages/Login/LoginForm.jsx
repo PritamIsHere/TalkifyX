@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import useAuthStore from "../../stores/useAuthStore";
+import toast from "react-hot-toast";
 
 export const LoginForm = ({ theme, onClose }) => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -19,6 +20,7 @@ export const LoginForm = ({ theme, onClose }) => {
       if (success) {
         onClose();
       }
+      toast.success("Login Successfully !!");
     } catch (error) {}
   };
 
