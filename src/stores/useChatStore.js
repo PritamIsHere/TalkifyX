@@ -1,112 +1,152 @@
 import { create } from "zustand";
+import { api, socket } from "../api/api";
+const useChatStore = create((set, get) => ({
+  socketConnected: false,
 
-// Mock Data
-const MOCK_CONTACTS = [
-  {
-    id: 1,
-    name: "Elizabeth Olsen",
-    role: "Junior Developer",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-    lastMessage: "Can you send me the report?",
-    time: "8:30 AM",
-    unread: 0,
-    status: "online",
-  },
-  {
-    id: 2,
-    name: "Brad Forst",
-    role: "Product Manager",
-    avatar:
-      "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150",
-    lastMessage: "Message for brad frost",
-    time: "10:46 AM",
-    unread: 1,
-    status: "offline",
-  },
-  {
-    id: 3,
-    name: "Paul Irish",
-    role: "Designer",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-    lastMessage: "Message for Paul Irish",
-    time: "09:06 AM",
-    unread: 0,
-    status: "offline",
-  },
-];
+  // State Variable
+  chats: [],
+  selectedChat: null,
+  messages: [],
+  notifications: [],
 
-const MOCK_MESSAGES = [
-  { id: 1, senderId: 2, text: "That's Great", time: "Yesterday", type: "text" },
-  {
-    id: 2,
-    senderId: "me",
-    text: "I am refer to the project structure and found some mistakes",
-    time: "Yesterday",
-    type: "text",
-  },
-  {
-    id: 3,
-    senderId: "me",
-    text: "There are some bugs in this project",
-    time: "Yesterday",
-    type: "text",
-  },
-  {
-    id: 4,
-    senderId: 1,
-    text: "I see that project",
-    time: "Today, 8:00 AM",
-    type: "text",
-  },
-  {
-    id: 5,
-    senderId: 1,
-    text: "Yes there are many bugs in that project",
-    time: "Today, 8:02 AM",
-    type: "text",
-  },
-  {
-    id: 6,
-    senderId: 1,
-    text: "Report.PDF",
-    size: "2.4 MB",
-    time: "Today, 8:05 AM",
-    type: "file",
-  },
-  {
-    id: 7,
-    senderId: "me",
-    text: "Can you send me the report",
-    time: "Today, 8:30 AM",
-    type: "text",
-  },
-];
+  // UI States
+  isLoadingChats: false,
+  isLoadingMessages: false,
+  isSendingMessage: false,
+  isTyping: false,
 
-// Zustand Store
-export const useChatStore = create((set) => ({
-  activeContactId: 1,
-  contacts: MOCK_CONTACTS,
-  messages: MOCK_MESSAGES,
-  currentUser: {
-    name: "Gravid Christofer",
-    role: "Senior Developer",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
+  //    1. Socket Connection & Event Listeners
+
+  connectSocket: (userId) => {
+    if (socket.connected) return;
+
+    socket.connect();
+
+    // 2. Emit setup immediately upon connection
+    socket.emit("setup", userId);
+
+    // 3. Define Event Listeners
+    socket
+      .off("connected")
+      .on("connected", () => set({ socketConnected: true }));
+
+    socket.off("typing").on("typing", () => set({ isTyping: true }));
+    socket.off("stop typing").on("stop typing", () => set({ isTyping: false }));
+
+    socket
+      .off("message received")
+      .on("message received", (newMessageRecieved) => {
+        const { selectedChat, messages, notifications } = get();
+
+        // Case 1: Message is for the currently open chat
+        if (selectedChat && selectedChat._id === newMessageRecieved.chat._id) {
+          set({ messages: [...messages, newMessageRecieved] });
+        }
+        // Case 2: Message is for a different chat
+        else {
+          if (!notifications.some((n) => n._id === newMessageRecieved._id)) {
+            set({ notifications: [newMessageRecieved, ...notifications] });
+            // Optional: Update chat list order
+            get().fetchChats();
+          }
+        }
+      });
   },
-  setActiveContact: (id) => set({ activeContactId: id }),
-  addMessage: (text) =>
-    set((state) => ({
-      messages: [
-        ...state.messages,
-        {
-          id: Date.now(),
-          senderId: "me",
-          text,
-          time: "Just now",
-          type: "text",
-        },
-      ],
-    })),
+
+  disconnectSocket: () => {
+    if (socket.connected) {
+      socket.disconnect();
+      set({ socketConnected: false });
+    }
+  },
+
+  //    2. Chat Management (HTTP)
+  fetchChats: async () => {
+    set({ isLoadingChats: true });
+    try {
+      const { data } = await api.get("/chat/fetch");
+      set({ chats: data, isLoadingChats: false });
+    } catch (error) {
+      console.error("Failed to fetch chats", error);
+      set({ isLoadingChats: false });
+    }
+  },
+
+  accessChat: async (userId) => {
+    set({ isLoadingChats: true });
+    try {
+      const { data } = await api.post("/chat/create", { userId });
+
+      const { chats } = get();
+      if (!chats.find((c) => c._id === data._id)) {
+        set({ chats: [data, ...chats] });
+      }
+
+      set({ selectedChat: data, isLoadingChats: false });
+    } catch (error) {
+      console.error("Failed to access chat", error);
+      set({ isLoadingChats: false });
+    }
+  },
+
+  setSelectedChat: (chat) => {
+    set({ selectedChat: chat });
+  },
+
+  //    3. Message Management
+
+  fetchMessages: async () => {
+    const { selectedChat } = get();
+    if (!selectedChat) return;
+
+    set({ isLoadingMessages: true });
+    try {
+      const { data } = await api.get(`/message/${selectedChat._id}`);
+      set({ messages: data, isLoadingMessages: false });
+
+      // Join the chat room
+      socket.emit("join chat", selectedChat._id);
+    } catch (error) {
+      console.error("Failed to fetch messages", error);
+      set({ isLoadingMessages: false });
+    }
+  },
+
+  sendMessage: async (content) => {
+    const { selectedChat, messages } = get();
+    if (!selectedChat) return;
+
+    set({ isSendingMessage: true });
+    socket.emit("stop typing", selectedChat._id);
+
+    try {
+      const { data } = await api.post("/message/send", {
+        content: content,
+        chatId: selectedChat._id,
+      });
+
+      set({
+        messages: [...messages, data],
+        isSendingMessage: false,
+      });
+    } catch (error) {
+      console.error("Failed to send message", error);
+      set({ isSendingMessage: false });
+    }
+  },
+
+  // 4. Typing Indicators
+  emitTyping: () => {
+    const { selectedChat } = get();
+    if (!selectedChat) return;
+    socket.emit("typing", selectedChat._id);
+  },
+
+  emitStopTyping: () => {
+    const { selectedChat } = get();
+    if (!selectedChat) return;
+    socket.emit("stop typing", selectedChat._id);
+  },
 }));
+
+export default useChatStore;

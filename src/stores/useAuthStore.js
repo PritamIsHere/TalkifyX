@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import Cookies from "js-cookie";
-import api from "../api/api";
+import { api } from "../api/api";
+
 import { extractBearerToken } from "../util/bearerToken";
 
 const useAuthStore = create(
@@ -34,6 +35,7 @@ const useAuthStore = create(
             isAuthenticated: true,
             loading: false,
           });
+          get().loadUser();
           return res.data.success;
         } catch (err) {
           set({
