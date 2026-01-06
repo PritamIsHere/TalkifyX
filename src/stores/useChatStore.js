@@ -96,19 +96,42 @@ const useChatStore = create((set, get) => ({
     set({ selectedChat: chat });
   },
 
+  // Fetch a specific chat by ID
+  fetchChatById: async (chatId) => {
+    set({ isLoadingChats: true });
+    try {
+      const { data } = await api.get(`/chat/${chatId}`);
+      set({ selectedChat: data, isLoadingChats: false });
+
+      // Also update chats list if not already present
+      const { chats } = get();
+      if (!chats.find((c) => c._id === data._id)) {
+        set({ chats: [data, ...chats] });
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch chat by ID", error);
+      set({ isLoadingChats: false });
+      throw error;
+    }
+  },
+
   //    3. Message Management
 
-  fetchMessages: async () => {
+  fetchMessages: async (chatId = null) => {
     const { selectedChat } = get();
-    if (!selectedChat) return;
+    const targetChatId = chatId || selectedChat?._id;
+
+    if (!targetChatId) return;
 
     set({ isLoadingMessages: true });
     try {
-      const { data } = await api.get(`/message/${selectedChat._id}`);
+      const { data } = await api.get(`/message/${targetChatId}`);
       set({ messages: data, isLoadingMessages: false });
 
       // Join the chat room
-      socket.emit("join chat", selectedChat._id);
+      socket.emit("join chat", targetChatId);
     } catch (error) {
       console.error("Failed to fetch messages", error);
       set({ isLoadingMessages: false });

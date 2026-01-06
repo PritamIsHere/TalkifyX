@@ -66,6 +66,9 @@ export const useTheme = () => {
 
     // Dividers/Separators
     divider: isDark ? "border-white/5" : "border-slate-200",
+
+    // Main Background (for chat area)
+    mainBg: isDark ? "bg-slate-950" : "bg-slate-50",
   };
 
   return theme;
