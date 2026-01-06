@@ -147,112 +147,106 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* MOBILE TOP HEADER */}
+      {/* MOBILE TOP HEADER - Hidden on chat detail pages */}
+      {!location.pathname.startsWith("/chat/") && (
+        <div
+          className={`md:hidden fixed top-0 left-0 right-0 h-12 px-4 z-40 flex items-center justify-between ${theme.bg} border-b ${theme.divider} backdrop-blur-lg`}
+        >
+          <div className="flex items-center gap-3">
+            <img className="h-10 w-10" src={Image.logo} alt="Logo" />
+            <h1 className={`font-bold text-lg ${theme.text}`}>TalkifyX</h1>
+          </div>
 
-      <div
-        className={`md:hidden fixed top-0 left-0 right-0 h-12 px-4 z-40 flex items-center justify-between ${theme.bg} border-b ${theme.divider} backdrop-blur-lg`}
-      >
-        <div className="flex items-center gap-3">
-          <img className="h-10 w-10" src={Image.logo} alt="Logo" />
-          <h1 className={`font-bold text-lg ${theme.text}`}>TalkifyX</h1>
-        </div>
+          <div className="relative">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`p-2 rounded-full ${theme.sidebarIconInactive}`}
+            >
+              <MoreVertical size={24} />
+            </button>
 
-        <div className="relative">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`p-2 rounded-full ${theme.sidebarIconInactive}`}
-          >
-            <MoreVertical size={24} />
-          </button>
-
-          {/* Mobile Dropdown */}
-          {isMobileMenuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-              <div
-                className={`absolute right-0 top-12 w-48 rounded-xl shadow-2xl z-50 overflow-hidden border ${
-                  theme.divider
-                } ${
-                  isDarkMode
-                    ? "bg-slate-900 border-white/5"
-                    : "bg-white border-slate-200"
-                } `}
-              >
-                {/* Theme Switcher */}
+            {/* Mobile Dropdown */}
+            {isMobileMenuOpen && (
+              <>
                 <div
-                  onClick={toggleDarkMode}
-                  className={`flex items-center justify-between px-4 py-3 cursor-pointer border-b ${
-                    theme.divider
-                  } active:bg-black/5 ${
-                    isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {isDarkMode ? (
-                      <Moon size={18} className="text-purple-400" />
-                    ) : (
-                      <Sun size={18} className="text-orange-400" />
-                    )}
-                    <span className={`text-sm font-medium ${theme.text}`}>
-                      Theme
-                    </span>
-                  </div>
-                  <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${
-                      isDarkMode ? "bg-cyan-500" : "bg-slate-300"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${
-                        isDarkMode ? "left-4.5" : "left-0.5"
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* MOBILE SETTINGS -> NAVIGATES TO ROUTE */}
-                <Link
-                  to="/setting"
+                  className="fixed inset-0 z-40"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium ${
-                    theme.text
-                  } active:bg-black/10 ${
-                    isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
-                  }`}
+                />
+                <div
+                  className={`absolute right-0 top-12 w-48 rounded-xl shadow-2xl z-50 overflow-hidden border ${theme.divider
+                    } ${isDarkMode
+                      ? "bg-slate-900 border-white/5"
+                      : "bg-white border-slate-200"
+                    } `}
                 >
-                  <Settings size={18} className={theme.textMuted} />
-                  Settings
-                </Link>
+                  {/* Theme Switcher */}
+                  <div
+                    onClick={toggleDarkMode}
+                    className={`flex items-center justify-between px-4 py-3 cursor-pointer border-b ${theme.divider
+                      } active:bg-black/5 ${isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isDarkMode ? (
+                        <Moon size={18} className="text-purple-400" />
+                      ) : (
+                        <Sun size={18} className="text-orange-400" />
+                      )}
+                      <span className={`text-sm font-medium ${theme.text}`}>
+                        Theme
+                      </span>
+                    </div>
+                    <div
+                      className={`w-8 h-4 rounded-full relative transition-colors ${isDarkMode ? "bg-cyan-500" : "bg-slate-300"
+                        }`}
+                    >
+                      <span
+                        className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${isDarkMode ? "left-4.5" : "left-0.5"
+                          }`}
+                      />
+                    </div>
+                  </div>
 
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium active:bg-black/10 ${
-                    isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
-                  } ${isDarkMode ? "text-red-400" : "text-red-600"}`}
-                >
-                  <LogOut size={18} />
-                  Log out
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+                  {/* MOBILE SETTINGS -> NAVIGATES TO ROUTE */}
+                  <Link
+                    to="/setting"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium ${theme.text
+                      } active:bg-black/10 ${isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
+                      }`}
+                  >
+                    <Settings size={18} className={theme.textMuted} />
+                    Settings
+                  </Link>
 
-      {/* Mobile Bottom Nav */}
-      <div
-        className={`md:hidden fixed bottom-0 left-0 right-0 h-16 z-40 ${theme.bg} border-t ${theme.divider} backdrop-blur-lg`}
-      >
-        <div className="flex justify-around items-center h-full px-2">
-          {navItems.map((item) => (
-            <MobileNavLink key={item.id} item={item} />
-          ))}
+                  {/* Logout */}
+                  <button
+                    onClick={handleLogout}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium active:bg-black/10 ${isDarkMode ? "hover:bg-white/5" : "hover:bg-neutral-100"
+                      } ${isDarkMode ? "text-red-400" : "text-red-600"}`}
+                  >
+                    <LogOut size={18} />
+                    Log out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Mobile Bottom Nav - Hidden on chat detail pages */}
+      {!location.pathname.startsWith("/chat/") && (
+        <div
+          className={`md:hidden fixed bottom-0 left-0 right-0 h-16 z-40 ${theme.bg} border-t ${theme.divider} backdrop-blur-lg`}
+        >
+          <div className="flex justify-around items-center h-full px-2">
+            {navItems.map((item) => (
+              <MobileNavLink key={item.id} item={item} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <SettingsModal
         isOpen={isSettingsOpen}
