@@ -13,6 +13,8 @@ import useAuthStore from "../stores/useAuthStore";
 import { useTheme } from "../theme/Theme";
 import { Image } from "../assets/image";
 import { api } from "../api/api";
+import toast from "react-hot-toast";
+import { motion } from "motion/react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -60,7 +62,8 @@ const Profile = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error("copy failed", err);
+      // console.error("copy failed", err);
+      toast.error("Copy failed");
     }
   };
 
@@ -148,12 +151,20 @@ const Profile = () => {
   return (
     <div className={`flex h-screen w-full overflow-hidden ${theme.mainBg}`}>
       {/* LEFT SIDE: Profile Section */}
-      <div
+      <motion.div
+        initial={{ x: 50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: -50, opacity: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 120,
+          damping: 18,
+        }}
         className={`flex flex-col h-full w-full md:w-[400px] lg:w-[450px] ${theme.sidebarBg} border-r ${theme.divider} flex-shrink-0 z-10`}
       >
         {/* 3. Back Button Functionality */}
         <div
-          className={`flex items-end px-5 pb-4 h-[108px] ${theme.footer} flex-shrink-0 shadow-sm`}
+          className={`flex items-end px-5 pb-4 py-5 ${theme.footer} flex-shrink-0 shadow-sm`}
         >
           <div className="flex items-center gap-6">
             <button
@@ -295,7 +306,9 @@ const Profile = () => {
                   {/* Copy Button with Icon Swap Animation */}
                   <button
                     onClick={copyId}
-                    className={`p-2 rounded-full transition-all ${copied ? "bg-green-500/10" : "hover:bg-black/5"}`}
+                    className={`p-2 rounded-full transition-all ${
+                      copied ? "bg-green-500/10" : "hover:bg-black/5"
+                    }`}
                     title="Copy ID"
                   >
                     {copied ? (
@@ -312,7 +325,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* RIGHT SIDE: Empty Placeholder */}
       <div

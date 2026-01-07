@@ -3,6 +3,7 @@ import { useThemeStore } from "../../stores/useThemeStore";
 import { useTheme } from "../../theme/Theme";
 import useAuthStore from "../../stores/useAuthStore";
 import toast from "react-hot-toast";
+import { motion } from "motion/react";
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const theme = useTheme();
@@ -18,7 +19,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={`fixed inset-0 z-50 flex items-center justify-center ${theme.modalOverlay}`}
     >
       {/* Modal Container */}
@@ -106,7 +111,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

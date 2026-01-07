@@ -17,12 +17,16 @@ import { Image } from "../../assets/image";
 import useAuthStore from "../../stores/useAuthStore";
 import toast from "react-hot-toast";
 import SettingsModal from "./SettingsModal";
+import useChatStore from "../../stores/useChatStore";
+import { motion } from "motion/react";
+import MobileMenu from "./MobileMenu";
 
 const Sidebar = () => {
   const theme = useTheme();
   const location = useLocation();
 
   const user = useAuthStore((state) => state.user);
+  const { reSetSelectedChat } = useChatStore();
 
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const logout = useAuthStore((state) => state.logout);
@@ -38,19 +42,45 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { id: "chat", icon: MessageSquareText, label: "Chats", path: "/" },
-    { id: "status", icon: CircleFadingPlus, label: "Status", path: "/status" },
-    { id: "groups", icon: UsersIcon, label: "Groups", path: "/group" },
-    { id: "profile", icon: UserCircle, label: "Profile", path: "/profile" },
+    {
+      id: "chat",
+      icon: MessageSquareText,
+      label: "Chats",
+      path: "/",
+      onClick: reSetSelectedChat,
+    },
+    {
+      id: "status",
+      icon: CircleFadingPlus,
+      label: "Status",
+      path: "/status",
+      onClick: null,
+    },
+    {
+      id: "groups",
+      icon: UsersIcon,
+      label: "Groups",
+      path: "/group",
+      onClick: null,
+    },
+    {
+      id: "profile",
+      icon: UserCircle,
+      label: "Profile",
+      path: "/profile",
+      onClick: null,
+    },
   ];
 
-  const isActivePath = (path) => {
-    if (path === "/" && location.pathname !== "/") return false;
-    return location.pathname === path;
+  const isActivePath = (item) => {
+    if (item.id === "chat") {
+      return location.pathname === "/" || location.pathname.startsWith("/chat");
+    }
+    return location.pathname === item.path;
   };
 
   const DesktopNavButton = ({ item, onClick, isActionActive }) => {
-    const isActive = item.path ? isActivePath(item.path) : isActionActive;
+    const isActive = item.path ? isActivePath(item) : isActionActive;
 
     const baseClass = `
       relative group flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 cursor-pointer
@@ -59,7 +89,12 @@ const Sidebar = () => {
 
     if (item.path) {
       return (
-        <Link to={item.path} className={baseClass} title={item.label}>
+        <Link
+          to={item.path}
+          className={baseClass}
+          title={item.label}
+          onClick={item.onClick}
+        >
           {item.id === "profile" ? (
             <img
               src={user?.avatar || Image.defaultUser}
@@ -87,10 +122,11 @@ const Sidebar = () => {
   };
 
   const MobileNavLink = ({ item }) => {
-    const active = isActivePath(item.path);
+    const active = isActivePath(item);
     return (
       <Link
         to={item.path}
+        onClick={item.onClick}
         className={`
           flex flex-col items-center justify-center w-full h-full py-2 space-y-1
           ${active ? "text-cyan-500" : theme.textMuted}
@@ -147,122 +183,50 @@ const Sidebar = () => {
         </div>
       </aside>
       <>
-        {!/^\/chat(\/.*)?$/.test(location.pathname) && (
-          <>
-            {/* 1. THE FIXED HEADER */}
-            <div
-              className={`md:hidden fixed top-0 left-0 right-0 h-12 px-4 z-40 flex items-center justify-between ${theme.bg} border-b ${theme.divider} backdrop-blur-lg`}
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  className="h-10 w-10 not-md:hidden"
-                  src={Image.logo}
-                  alt="Logo"
-                />
-                <h1 className={`font-bold text-lg ${theme.text}`}>TalkifyX</h1>
+        {!location.pathname.startsWith("/chat") &&
+          !location.pathname.startsWith("/profile") && (
+            <>
+              {/* 1. THE FIXED HEADER */}
+              <div
+                className={`md:hidden fixed top-0 left-0 right-0 h-12 px-4 z-40 flex items-center justify-between ${theme.bg} border-b ${theme.divider} backdrop-blur-lg`}
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    className="h-10 w-10 not-md:hidden"
+                    src={Image.logo}
+                    alt="Logo"
+                  />
+                  <h1 className={`font-bold text-lg ${theme.text}`}>
+                    TalkifyX
+                  </h1>
+                </div>
+
+                <div className="relative">
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className={`p-2 rounded-full ${theme.sidebarIconInactive}`}
+                  >
+                    <MoreVertical size={24} />
+                  </button>
+
+                  {/* Mobile Dropdown */}
+                  <MobileMenu
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    setIsMobileMenuOpen={setIsMobileMenuOpen}
+                    isDarkMode={isDarkMode}
+                    toggleDarkMode={toggleDarkMode}
+                    handleLogout={handleLogout}
+                    theme={theme}
+                  />
+                </div>
               </div>
 
-              <div className="relative">
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className={`p-2 rounded-full ${theme.sidebarIconInactive}`}
-                >
-                  <MoreVertical size={24} />
-                </button>
-
-                {/* Mobile Dropdown */}
-                {isMobileMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    />
-                    <div
-                      className={`absolute right-0 top-12 w-48 rounded-xl shadow-2xl z-50 overflow-hidden border ${
-                        theme.divider
-                      } ${
-                        isDarkMode
-                          ? "bg-slate-900 border-white/5"
-                          : "bg-white border-slate-200"
-                      } `}
-                    >
-                      {/* Theme Switcher */}
-                      <div
-                        onClick={toggleDarkMode}
-                        className={`flex items-center justify-between px-4 py-3 cursor-pointer border-b ${
-                          theme.divider
-                        } active:bg-black/5 ${
-                          isDarkMode
-                            ? "hover:bg-white/5"
-                            : "hover:bg-neutral-100"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {isDarkMode ? (
-                            <Moon size={18} className="text-purple-400" />
-                          ) : (
-                            <Sun size={18} className="text-orange-400" />
-                          )}
-                          <span className={`text-sm font-medium ${theme.text}`}>
-                            Theme
-                          </span>
-                        </div>
-                        <div
-                          className={`w-8 h-4 rounded-full relative transition-colors ${
-                            isDarkMode ? "bg-cyan-500" : "bg-slate-300"
-                          }`}
-                        >
-                          <span
-                            className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${
-                              isDarkMode ? "left-4.5" : "left-0.5"
-                            }`}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Settings Link */}
-                      <Link
-                        to="/setting"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium ${
-                          theme.text
-                        } active:bg-black/10 ${
-                          isDarkMode
-                            ? "hover:bg-white/5"
-                            : "hover:bg-neutral-100"
-                        }`}
-                      >
-                        <Settings size={18} className={theme.textMuted} />
-                        Settings
-                      </Link>
-
-                      {/* Logout */}
-                      <button
-                        onClick={handleLogout}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium active:bg-black/10 ${
-                          isDarkMode
-                            ? "hover:bg-white/5"
-                            : "hover:bg-neutral-100"
-                        } ${isDarkMode ? "text-red-400" : "text-red-600"}`}
-                      >
-                        <LogOut size={18} />
-                        Log out
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* 2. THE SPACER (This pushes content down) */}
-            {/* It has the same height (h-12) as the header and is only visible on mobile */}
-            <div className="md:hidden h-12 w-full flex-shrink-0" />
-          </>
-        )}
+              <div className="md:hidden h-12 w-full flex-shrink-0" />
+            </>
+          )}
       </>
-      {/* Mobile Bottom Nav - Hidden on chat detail pages */}
-      {/* {!location.pathname.startsWith("/chat/") && ( */}
-      {!/^\/chat(\/.*)?$/.test(location.pathname) && (
+
+      {!location.pathname.startsWith("/chat") && (
         <div
           className={`md:hidden fixed bottom-0 left-0 right-0 h-16 z-40 ${theme.bg} border-t ${theme.divider} backdrop-blur-lg`}
         >
@@ -273,6 +237,7 @@ const Sidebar = () => {
           </div>
         </div>
       )}
+
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

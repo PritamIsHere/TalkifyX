@@ -4,6 +4,7 @@ import { useTheme } from "../../theme/Theme";
 import { data, Link } from "react-router-dom";
 import useChatStore from "../../stores/useChatStore";
 import ChatList from "./ChatList";
+import { AnimatePresence, motion } from "motion/react";
 
 const ChatListSidebar = () => {
   const theme = useTheme();

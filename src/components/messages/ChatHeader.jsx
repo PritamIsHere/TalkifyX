@@ -6,12 +6,14 @@ import { useTheme } from "../../theme/Theme";
 import { getSender, getSenderImage, getSenderName } from "../../util/chatUtils";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { Image } from "../../assets/image";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 
 const ChatHeader = () => {
   const theme = useTheme();
   const { user } = useAuthStore();
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
+  const naviagte = useNavigate();
 
   const { selectedChat, setSelectedChat, isTyping } = useChatStore();
 
@@ -33,21 +35,27 @@ const ChatHeader = () => {
     : theme.textMuted;
 
   return (
-    <div
+    <motion.div
+      initial={{ x: 50, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -50, opacity: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 120,
+        damping: 18,
+      }}
       className={`
       w-full h-20 px-6 flex items-center justify-between 
       border-b ${theme.divider} ${theme.navBg} backdrop-blur-sm z-10
     `}
     >
       <div className="flex items-center gap-4">
-        <button
-          onClick={() => setSelectedChat(null)}
+        <div
+          onClick={() => naviagte(-1)}
           className="md:hidden p-2 -ml-2 rounded-full hover:bg-black/5 text-slate-500"
         >
-          <Link to="/">
-            <ArrowLeft size={20} />
-          </Link>
-        </button>
+          <ArrowLeft size={20} />
+        </div>
 
         <div className="relative">
           <img
@@ -85,7 +93,7 @@ const ChatHeader = () => {
           <Info size={20} />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

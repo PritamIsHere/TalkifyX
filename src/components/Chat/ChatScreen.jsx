@@ -5,6 +5,7 @@ import { useTheme } from "../../theme/Theme";
 import { Navigate } from "react-router-dom";
 import ChatHeader from "../messages/ChatHeader";
 import ChatInput from "../messages/ChatInput";
+import { AnimatePresence, motion } from "motion/react";
 
 const ChatScreen = () => {
   const { selectedChat, isLoadingMessages } = useChatStore();
@@ -23,7 +24,18 @@ const ChatScreen = () => {
   }
 
   return (
-    <div className={`flex flex-col h-full w-full relative ${theme.bg}`}>
+    <motion.div
+      key={selectedChat._id}
+      initial={{ x: 50, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -50, opacity: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 120,
+        damping: 18,
+      }}
+      className={`flex flex-col h-full w-full relative ${theme.bg}`}
+    >
       <ChatHeader />
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-opacity-50">
         {isLoadingMessages ? (
@@ -37,7 +49,7 @@ const ChatScreen = () => {
       <div className="py-4">
         <ChatInput />
       </div>
-    </div>
+    </motion.div>
   );
 };
 

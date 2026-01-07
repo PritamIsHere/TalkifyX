@@ -97,6 +97,12 @@ const useChatStore = create((set, get) => ({
     get().fetchMessages();
   },
 
+  reSetSelectedChat: () => {
+    set({
+      selectedChat: null,
+    });
+  },
+
   //    3. Message Management
 
   fetchMessages: async (chatId = null) => {

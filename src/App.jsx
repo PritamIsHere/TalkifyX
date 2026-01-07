@@ -39,9 +39,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               <Route path="/" element={<ChatLayout />}>
-                {/* Index: Shows when no chat is selected (Desktop placeholder) */}
                 <Route index element={<EmptyChatState />} />
-                {/* Detail: Shows when specific chat is selected */}
                 <Route path="chat" element={<ChatScreen />} />
               </Route>
 

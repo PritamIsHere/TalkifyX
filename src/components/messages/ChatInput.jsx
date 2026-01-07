@@ -16,6 +16,10 @@ const ChatInput = () => {
   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
+    textareaRef.current.focus();
+  }, []);
+
+  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(
@@ -103,7 +107,7 @@ const ChatInput = () => {
         <div
           className={`
             flex-1 relative flex items-center rounded-[24px] border transition-all duration-200 ease-out
-            focus-within:ring-2 focus-within:ring-cyan-500/50 focus-within:border-cyan-500
+            focus-within:ring-2 focus-within:ring-cyan-500/50 
             ${
               isDark
                 ? "bg-slate-900 border-slate-800"
