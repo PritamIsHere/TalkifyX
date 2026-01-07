@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Copy,
   Pencil,
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom"; // Standard for React navigation
 import useAuthStore from "../stores/useAuthStore";
 import { useTheme } from "../theme/Theme";
 import { Image } from "../assets/image";
+import { api } from "../api/api";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -21,6 +22,12 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
   const [copied, setCopied] = useState(false); // For copy animation
+
+  // Upload states
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const theme = useTheme();
 
@@ -73,6 +80,62 @@ const Profile = () => {
     }
   };
 
+  // Avatar upload handlers
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Create preview
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+
+    // Upload
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("avatar", file);
+
+      const res = await api.put("/user/update_profile", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data?.success) {
+        setUploadSuccess(true);
+        // Update local profile and global user
+        if (res.data.user) {
+          setProfile(res.data.user);
+          // Refresh auth store
+          try {
+            await loadUser();
+          } catch (err) {
+            // ignore
+          }
+        } else {
+          // fallback to reloading user
+          await loadUser();
+        }
+
+        setTimeout(() => setUploadSuccess(false), 1800);
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+    } finally {
+      setUploading(false);
+      e.target.value = null; // reset input so same file can be re-picked
+    }
+  };
+
+  // Cleanup preview URL on unmount / change
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   if (loading || !profile)
     return (
       <div
@@ -107,17 +170,69 @@ const Profile = () => {
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* 1. Smaller Profile Photo */}
           <div className="flex justify-center py-8">
-            <div className="relative group cursor-pointer w-40 h-40 rounded-full overflow-hidden shadow-md">
+            <div
+              className="relative group w-40 h-40 rounded-full overflow-hidden shadow-md"
+              onClick={handleAvatarClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") handleAvatarClick();
+              }}
+            >
               <img
-                src={profile.avatar || Image.defaultUser}
+                src={preview || profile.avatar || Image.defaultUser}
                 alt={profile.username}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+
+              {/* Overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-center p-4">
-                <Camera size={22} className="mb-1" />
-                <span className="text-[9px] uppercase font-bold leading-tight">
-                  Change <br /> Profile Photo
-                </span>
+                {uploading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <svg
+                      className="animate-spin h-6 w-6 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    <span className="text-[11px]">Uploading...</span>
+                  </div>
+                ) : uploadSuccess ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Check size={20} className="text-green-400" />
+                    <span className="text-[11px]">Uploaded</span>
+                  </div>
+                ) : (
+                  <>
+                    <Camera size={22} className="mb-1" />
+                    <span className="text-[9px] uppercase font-bold leading-tight">
+                      Change <br /> Profile Photo
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
