@@ -142,14 +142,14 @@ const Profile = () => {
   if (loading || !profile)
     return (
       <div
-        className={`h-full w-full flex items-center justify-center ${theme.mainBg} ${theme.text}`}
+        className={`h-full w-full flex items-center justify-center ${theme.bg} ${theme.text}`}
       >
         <div className="animate-pulse">Loading...</div>
       </div>
     );
 
   return (
-    <div className={`flex h-screen w-full overflow-hidden ${theme.mainBg}`}>
+    <div className={`flex h-screen w-full overflow-hidden ${theme.bg}`}>
       {/* LEFT SIDE: Profile Section */}
       <motion.div
         initial={{ x: 50, opacity: 0 }}
@@ -178,7 +178,7 @@ const Profile = () => {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className={`flex-1 overflow-y-auto custom-scrollbar ${theme.bg}`}>
           {/* 1. Smaller Profile Photo */}
           <div className="flex justify-center py-8">
             <div

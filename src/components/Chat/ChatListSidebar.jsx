@@ -21,7 +21,7 @@ const ChatListSidebar = () => {
         <Link to="/create">
           <MessageSquarePlus size={25} />
         </Link>
-        {/* <div
+        <div
           className={`flex items-center px-4 py-2 rounded-lg border ${theme.divider} ${theme.navBg}`}
         >
           <Search size={20} className={theme.textMuted} />
@@ -30,10 +30,10 @@ const ChatListSidebar = () => {
             placeholder="Search or start new chat"
             className={`bg-transparent border-none outline-none ml-3 w-full text-sm ${theme.text}`}
           />
-        </div>  */}
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className={`flex-1 overflow-y-auto custom-scrollbar ${theme.bg}`}>
         <ChatList chats={chats} theme={theme} />
       </div>
     </div>
