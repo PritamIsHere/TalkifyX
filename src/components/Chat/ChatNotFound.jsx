@@ -1,11 +1,13 @@
 import React from "react";
 import { UserPlus, MessageSquareMore } from "lucide-react";
 import { useTheme } from "../../theme/Theme";
-const ChatNotFound = ({ onStartChat }) => {
+import { useNavigate } from "react-router-dom";
+const ChatNotFound = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full p-6 text-center animate-fade-in-up">
+    <div className="h-full flex flex-col items-center justify-center w-full p-6 text-center animate-fade-in-up">
       <div
         className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-transform hover:scale-105 ${theme.blobBlue}`}
       >
@@ -24,7 +26,7 @@ const ChatNotFound = ({ onStartChat }) => {
         to start a new conversation.
       </p>
       <button
-        onClick={onStartChat}
+        onClick={() => navigate("/create")}
         className="
           flex items-center gap-2 px-6 py-3 rounded-xl 
           bg-gradient-to-r from-cyan-500 to-blue-500 

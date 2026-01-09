@@ -1,6 +1,7 @@
 import React from "react";
 import { useTheme } from "../../theme/Theme";
 import useAuthStore from "../../stores/useAuthStore";
+import { Image } from "../../assets/image";
 
 const MessageItem = ({ message, isMyMessage, showAvatar }) => {
   const theme = useTheme();
@@ -15,7 +16,7 @@ const MessageItem = ({ message, isMyMessage, showAvatar }) => {
         <div className="w-8 flex flex-col justify-end mr-2">
           {showAvatar ? (
             <img
-              src={message.sender.avatar}
+              src={message.sender.avatar || Image.defaultUser}
               alt={message.sender.username}
               className="w-8 h-8 rounded-full object-cover shadow-sm"
               title={message.sender.username}

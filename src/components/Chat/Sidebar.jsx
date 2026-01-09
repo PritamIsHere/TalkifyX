@@ -202,41 +202,6 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* ---------------- MOBILE HEADER ---------------- */}
-      {/* {!location.pathname.startsWith("/chat") &&
-        !location.pathname.startsWith("/profile") &&
-        !location.pathname.startsWith("/create") && (
-          <>
-            <div
-              className={`md:hidden fixed top-0 left-0 right-0 h-12 z-40 px-4
-              flex items-center justify-between ${theme.bg} border-b ${theme.divider}`}
-            >
-              <div className="flex items-center gap-2">
-                <img src={Image.logo} className="h-8 w-8" />
-                <h1 className={`font-bold ${theme.text}`}>TalkifyX</h1>
-              </div>
-
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`p-2 rounded-full ${theme.sidebarIconInactive}`}
-              >
-                <MoreVertical />
-              </motion.button>
-
-              <MobileMenu
-                isMobileMenuOpen={isMobileMenuOpen}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
-                isDarkMode={isDarkMode}
-                toggleDarkMode={toggleDarkMode}
-                handleLogout={handleLogout}
-                theme={theme}
-              />
-            </div>
-            <div className="h-12 md:hidden" />
-          </>
-        )} */}
-
       {/* ---------------- MOBILE BOTTOM NAV ---------------- */}
       {!location.pathname.startsWith("/chat") && (
         <div

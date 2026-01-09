@@ -162,7 +162,7 @@ const AddnewUser = () => {
     );
 
   return (
-    <div className={`flex h-screen w-full overflow-hidden ${theme.mainBg}`}>
+    <div className={`flex h-screen w-full overflow-hidden ${theme.bg}`}>
       {/* LEFT SIDE: Profile Section */}
       <motion.div
         initial={{ x: 50, opacity: 0 }}
@@ -173,7 +173,7 @@ const AddnewUser = () => {
           stiffness: 120,
           damping: 18,
         }}
-        className={`flex flex-col h-full w-full md:w-[400px] lg:w-[450px] ${theme.sidebarBg} border-r ${theme.divider} flex-shrink-0 z-10`}
+        className={`flex flex-col h-full w-full md:w-[400px] lg:w-[450px] ${theme.bg} border-r ${theme.divider} flex-shrink-0 z-10`}
       >
         {/* 3. Back Button Functionality */}
         <div

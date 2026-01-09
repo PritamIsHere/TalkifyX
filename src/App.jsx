@@ -20,7 +20,7 @@ import Profile from "./pages/Profile";
 import ChatLayout from "./components/Chat/ChatLayout";
 import ChatScreen from "./components/Chat/ChatScreen";
 import EmptyChatState from "./components/Chat/EmptyChatState";
-import Loading from "./components/Loading";
+import Loading from "./components/Loaders/Loading";
 import AddnewUser from "./pages/AddnewUser";
 import useChatStore from "./stores/useChatStore";
 
@@ -36,14 +36,14 @@ const App = () => {
     loaduser();
 
     const timer = setTimeout(() => {
-      setIsLoading(false); // ✅ update state
+      setIsLoading(false);
     }, 2000);
 
-    return () => clearTimeout(timer); // ✅ cleanup
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    return <Loading />; // ✅ rendering logic here
+    return <Loading />;
   }
 
   return (

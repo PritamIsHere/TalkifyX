@@ -4,34 +4,26 @@ import { createJSONStorage, persist } from "zustand/middleware";
 const useChatStore = create(
   persist(
     (set, get) => ({
-      socketConnected: false,
-
-      // State Variable
       chats: [],
       selectedChat: null,
       messages: [],
       notifications: [],
-
-      // UI States
+      contactSearchResults: [],
+      
+      socketConnected: false,
+      isSearchingContacts: false,
       isLoadingChats: false,
       isLoadingMessages: false,
       isSendingMessage: false,
       isTyping: false,
-
-      //    1. Socket Connection & Event Listeners
 
       connectSocket: (userId) => {
         if (socket.connected) return;
 
         socket.connect();
 
-        // 2. Emit setup immediately upon connection
         socket.emit("setup", userId);
-        // socket.on("connect", () => {
-        //   console.log("Socket connected");
-        // });
 
-        // 3. Define Event Listeners
         socket
           .off("connected")
           .on("connected", () => set({ socketConnected: true }));
@@ -46,8 +38,6 @@ const useChatStore = create(
           .on("message received", (newMessageReceived) => {
             const { selectedChat, messages, chats, notifications } = get();
 
-            // --- LOGIC 1: Update the Active Conversation ---
-            // If the user is currently looking at this chat
             if (
               selectedChat &&
               selectedChat._id === newMessageReceived.chat._id
@@ -56,11 +46,7 @@ const useChatStore = create(
               if (!messages.some((m) => m._id === newMessageReceived._id)) {
                 set({ messages: [...messages, newMessageReceived] });
               }
-            }
-
-            // --- LOGIC 2: Update Notifications (If chat is NOT open) ---
-            else {
-              // Only add if not already notified
+            } else {
               if (
                 !notifications.some((n) => n._id === newMessageReceived._id)
               ) {
@@ -68,8 +54,6 @@ const useChatStore = create(
               }
             }
 
-            // --- LOGIC 3: INSTANTLY Refresh Sidebar (Move Chat to Top) ---
-            // This updates the "Last Message" preview without an API call
             const updatedChats = chats.map((chat) => {
               if (chat._id === newMessageReceived.chat._id) {
                 return { ...chat, latestMessage: newMessageReceived };
@@ -98,7 +82,29 @@ const useChatStore = create(
         }
       },
 
-      //    2. Chat Management (HTTP)
+      searchContacts: async (query) => {
+        if (!query) {
+          set({ contactSearchResults: [], isSearchingContacts: false });
+          return;
+        }
+        set({ isSearchingContacts: true });
+        try {
+          const { data } = await api.get("/user/contact_search", {
+            params: {
+              q: query,
+            },
+          });
+          set({ contactSearchResults: data, isSearchingContacts: false });
+        } catch (error) {
+          console.error("Failed to search contacts", error);
+          set({ isSearchingContacts: false, contactSearchResults: [] });
+        }
+      },
+
+      clearContactSearch: () => {
+        set({ contactSearchResults: [], isSearchingContacts: false });
+      },
+
       fetchChats: async () => {
         set({ isLoadingChats: true });
         try {
@@ -120,26 +126,27 @@ const useChatStore = create(
             set({ chats: [data, ...chats] });
           }
 
-          set({ selectedChat: data, isLoadingChats: false });
+          set({
+            selectedChat: data,
+            isLoadingChats: false,
+            contactSearchResults: [],
+          });
         } catch (error) {
           console.error("Failed to access chat", error);
           set({ isLoadingChats: false });
         }
       },
 
-      // Inside chatStore.js
-
       setSelectedChat: (chat) => {
         const { notifications } = get();
 
-        // Remove all notifications that belong to the chat we just opened
         const filteredNotifications = notifications.filter(
           (n) => n.chat._id !== chat._id
         );
 
         set({
           selectedChat: chat,
-          notifications: filteredNotifications, // Clear badge
+          notifications: filteredNotifications,
           messages: [],
         });
 
@@ -152,8 +159,6 @@ const useChatStore = create(
         });
       },
 
-      //    3. Message Management
-
       fetchMessages: async (chatId = null) => {
         const { selectedChat } = get();
         const targetChatId = chatId || selectedChat?._id;
@@ -164,9 +169,8 @@ const useChatStore = create(
         try {
           const { data } = await api.get(`/message/${targetChatId}`);
           set({ messages: data, isLoadingMessages: false });
-          // Join the chat room
+
           socket.emit("join chat", targetChatId);
-          // console.log(data);
         } catch (error) {
           console.error("Failed to fetch messages", error);
           set({ isLoadingMessages: false });

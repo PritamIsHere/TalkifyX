@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { MessageSquare } from "lucide-react";
-import { useTheme } from "../theme/Theme";
+import { useTheme } from "../../theme/Theme";
 
 const Loading = () => {
   const theme = useTheme();
