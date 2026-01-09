@@ -38,41 +38,6 @@ const ChatList = ({ chats, theme }) => {
   };
 
   return (
-    // <motion.div
-    //   initial={{
-    //     x: -50,
-    //   }}
-    //   animate={{
-    //     x: 0,
-    //   }}
-    //   className={`w-full h-full ${theme.bg} ${theme.text} overflow-y-auto`}
-    // >
-    //   {isLoadingChats ? (
-    //     <ChatListSkeleton />
-    //   ) : !chats.length ? (
-    //     <ChatNotFound />
-    //   ) : (
-    //     chats.map((chat) => (
-    //       <motion.div
-    //         key={chat._id}
-    //         whileTap={{ scale: 0.97 }}
-    //         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-    //       >
-    //         <Link to="/chat">
-    //           <ChatItem
-    //             chat={chat}
-    //             user={chat.users[1]}
-    //             onClick={() => handleSelectChat(chat)}
-    //           />
-    //         </Link>
-    //       </motion.div>
-    //     ))
-    //   )}
-
-    //   <div className="h-10 w-10 bg-sky-500 absolute ">
-    //     <MessageSquarePlus />
-    //   </div>
-    // </motion.div>
     <>
       <motion.div variants={listVariants} initial="hidden" animate="visible">
         {isLoadingChats ? (

@@ -7,7 +7,12 @@ import useChatStore from "../../stores/useChatStore";
 export const ChatItem = ({ chat, user, onClick }) => {
   const theme = useTheme();
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
-  const { selectedChat } = useChatStore();
+  const { selectedChat, notifications } = useChatStore();
+
+  const unreadCount = notifications.filter(
+    (n) => n.chat._id === chat._id
+  ).length;
+
   const isSelected = selectedChat?._id === chat._id;
   return (
     <div
@@ -32,7 +37,6 @@ export const ChatItem = ({ chat, user, onClick }) => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
           <h3 className="font-semibold truncate">{user.username}</h3>
-
           <span className={`text-xs ${theme.textMuted}`}>
             {new Date(chat.latestMessage?.createdAt).toLocaleTimeString([], {
               hour: "2-digit",
@@ -48,10 +52,18 @@ export const ChatItem = ({ chat, user, onClick }) => {
             className={`truncate ${theme.textMuted}`}
             title={chat.latestMessage?.content}
           >
-            {chat.latestMessage?.content || "No messages yet"}
+            {chat.latestMessage
+              ? chat.latestMessage.content
+              : "Start a conversation"}
           </p>
         </div>
       </div>
+      {/* --- Notification Badge --- */}
+      {unreadCount > 0 && (
+        <div className="bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-sm animate-bounce">
+          {unreadCount > 9 ? "9+" : unreadCount}
+        </div>
+      )}
     </div>
   );
 };
