@@ -101,6 +101,7 @@ import { Image } from "../../assets/image";
 import { motion } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useThemeStore } from "../../stores/useThemeStore";
+import ChatNotFound from "./ChatNotFound";
 
 const ChatList = () => {
   const theme = useTheme();
