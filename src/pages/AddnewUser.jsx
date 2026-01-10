@@ -18,6 +18,7 @@ import { useTheme } from "../theme/Theme";
 import { Image } from "../assets/image";
 import { api } from "../api/api";
 import toast from "react-hot-toast";
+import useChatStore from "../stores/useChatStore";
 import { motion } from "motion/react";
 
 const AddnewUser = () => {
@@ -143,6 +144,44 @@ const AddnewUser = () => {
     };
   }, [preview]);
 
+  // --- Search & Add user states and handlers ---
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState(null);
+  const [searchError, setSearchError] = useState("");
+  const [initialMessage, setInitialMessage] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const accessChat = useChatStore((s) => s.accessChat);
+  const sendMessage = useChatStore((s) => s.sendMessage);
+
+  const handleSearch = async (e) => {
+    e?.preventDefault?.();
+    if (!searchQuery.trim()) {
+      setSearchError("Please enter a code");
+      setSearchResult(null);
+      return;
+    }
+    setSearching(true);
+    setSearchError("");
+    try {
+      const { data } = await api.get("/user/search", {
+        params: { code: searchQuery.trim() },
+      });
+      setSearchResult(data);
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        setSearchError("No user found with this code");
+      } else {
+        setSearchError("Search failed");
+      }
+      setSearchResult(null);
+    } finally {
+      setSearching(false);
+    }
+  };
+
   if (loading || !profile)
     return (
       <div
@@ -185,15 +224,102 @@ const AddnewUser = () => {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {/* 1. Smaller Profile Photo */}
-          <div className="flex justify-center py-8"></div>
+          {/* 1. Search & Add User */}
+          <div className="px-6 py-6">
+            <form onSubmit={handleSearch} className="flex items-center gap-3">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Enter unique code"
+                className={`flex-1 rounded-md border px-3 py-2 ${theme.inputBg} ${theme.text}`}
+              />
+              <button
+                type="submit"
+                disabled={searching}
+                className="px-4 py-2 rounded-md bg-cyan-500 text-white disabled:opacity-60"
+              >
+                {searching ? "Searching..." : "Search"}
+              </button>
+            </form>
 
-          <div className="flex flex-col gap-1">
-            {/* Name Section */}
+            {searchError && (
+              <p className="mt-2 text-sm text-red-500">{searchError}</p>
+            )}
 
-            {/* About Section */}
+            {searchResult && (
+              <div className="mt-4 p-3 border rounded-md flex items-center gap-3">
+                <img
+                  src={searchResult.avatar || Image}
+                  alt={searchResult.username}
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="font-medium">{searchResult.username}</div>
+                  <div className="text-sm text-gray-500">
+                    {searchResult.userCode}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="px-3 py-1 rounded-md border"
+                    onClick={async () => {
+                      try {
+                        setAdding(true);
+                        await accessChat(searchResult._id);
+                        toast.success(
+                          "Chat created. You can message them now."
+                        );
+                        navigate("/");
+                      } catch (err) {
+                        toast.error("Failed to create chat");
+                      } finally {
+                        setAdding(false);
+                      }
+                    }}
+                    disabled={adding}
+                  >
+                    {adding ? "Adding..." : "Start Chat"}
+                  </button>
+                </div>
+              </div>
+            )}
 
-            {/* Unique ID Section with Animation */}
+            {/* Initial message composer */}
+            {searchResult && (
+              <div className="mt-4 flex items-start gap-3">
+                <input
+                  value={initialMessage}
+                  onChange={(e) => setInitialMessage(e.target.value)}
+                  placeholder="Send a message (optional)"
+                  className={`flex-1 rounded-md border px-3 py-2 ${theme.inputBg} ${theme.text}`}
+                />
+                <button
+                  className="px-4 py-2 rounded-md bg-green-600 text-white disabled:opacity-60"
+                  onClick={async () => {
+                    if (!initialMessage.trim()) {
+                      toast.error("Enter a message");
+                      return;
+                    }
+                    try {
+                      setSending(true);
+                      await accessChat(searchResult._id);
+                      await sendMessage(initialMessage);
+                      toast.success("Message sent");
+                      setInitialMessage("");
+                      setSearchQuery("");
+                      setSearchResult(null);
+                    } catch (err) {
+                      toast.error("Failed to send message");
+                    } finally {
+                      setSending(false);
+                    }
+                  }}
+                  disabled={sending}
+                >
+                  {sending ? "Sending..." : "Send"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
