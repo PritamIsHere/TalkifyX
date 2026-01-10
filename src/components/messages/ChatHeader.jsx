@@ -47,12 +47,12 @@ const ChatHeader = () => {
       }}
       className={`
       w-full h-17 p-6 flex items-center justify-between 
-      border-b ${theme.divider} ${theme.navBg} backdrop-blur-sm z-10
+      border-b ${theme.divider} ${theme.navBg} backdrop-blur-sm z-10 rounded-4xl
     `}
     >
       <div className="flex items-center gap-4">
         <div
-          onClick={() => naviagte(-1)}
+          onClick={() => naviagte("/")}
           className="md:hidden p-2 -ml-2 rounded-full hover:bg-black/5 text-slate-500"
         >
           <ArrowLeft size={20} onClick={reSetSelectedChat} />

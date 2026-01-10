@@ -49,12 +49,12 @@ const Sidebar = () => {
       label: "Status",
       path: "/status",
     },
-    {
-      id: "groups",
-      icon: UsersIcon,
-      label: "Groups",
-      path: "/group",
-    },
+    // {
+    //   id: "groups",
+    //   icon: UsersIcon,
+    //   label: "Groups",
+    //   path: "/group",
+    // },
     {
       id: "profile",
       icon: UserCircle,

@@ -7,8 +7,14 @@ import { useThemeStore } from "../../stores/useThemeStore";
 const ChatInput = () => {
   const theme = useTheme();
   const isDark = useThemeStore((state) => state.isDarkMode);
-  const { sendMessage, emitTyping, emitStopTyping, isSendingMessage } =
-    useChatStore();
+  const {
+    sendMessage,
+    emitTyping,
+    emitStopTyping,
+    messages,
+    isSendingMessage,
+    isTyping,
+  } = useChatStore();
 
   const [content, setContent] = useState("");
   const [typing, setTyping] = useState(false);
@@ -27,7 +33,7 @@ const ChatInput = () => {
         128
       )}px`;
     }
-  }, [content]);
+  }, [content, isTyping, messages]);
 
   const handleTyping = (e) => {
     setContent(e.target.value);
@@ -68,12 +74,14 @@ const ChatInput = () => {
   return (
     <div
       className={`
-      w-full px-4 border-t backdrop-blur-xl transition-colors duration-300 h-9 my-3 py-1.5
-      ${
-        isDark
-          ? "bg-slate-950/80 border-white/5"
-          : "bg-white/80 border-slate-200"
-      }
+      w-full px-4 backdrop-blur-xl my-3  
+      border rounded-4xl transition-all duration-200 ease-out
+            focus-within:ring-2 focus-within:ring-cyan-500/50 ${theme.bg}
+            ${
+              isDark
+                ? "bg-slate-900 border-slate-800"
+                : "bg-slate-100 border-slate-200 shadow-md"
+            }
     `}
     >
       <form
@@ -106,33 +114,18 @@ const ChatInput = () => {
         {/* Input Wrapper */}
         <div
           className={`
-            flex-1 relative flex items-center rounded-[24px] border transition-all duration-200 ease-out
-            focus-within:ring-2 focus-within:ring-cyan-500/50 ${theme.bg}
-            ${
-              isDark
-                ? "bg-slate-900 border-slate-800"
-                : "bg-slate-50 border-slate-200 shadow-inner"
-            }
-          `}
+            flex-1 relative flex items-center`}
         >
           <textarea
             ref={textareaRef}
             value={content}
             onChange={handleTyping}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
+            placeholder="Type a message"
             rows={1}
-            className={`
-              w-full py-3 pl-4 pr-12 bg-transparent border-none outline-none resize-none
+            className={`w-full py-3 pl-4 pr-12 bg-transparent border-none outline-none resize-none
               text-sm leading-relaxed scrollbar-hide
-              ${
-                isDark
-                  ? "text-slate-100 placeholder:text-slate-500"
-                  : "text-slate-800 placeholder:text-slate-400"
-              }
-              h-6
-            `}
-            // style={{ minHeight: "" }}
+              font-mono `}
           />
 
           {/* Emoji Button */}
@@ -157,11 +150,9 @@ const ChatInput = () => {
             type="submit"
             disabled={!content.trim()}
             className={`
-              group flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all duration-300
-              ${
-                content.trim()
-                  ? "bg-gradient-to-tr from-cyan-500 to-blue-600 text-white hover:shadow-cyan-500/25 hover:scale-105 active:scale-95 cursor-pointer"
-                  : `bg-slate-200 ${theme.bg} text-slate-400 cursor-not-allowed`
+              flex items-center justify-center w-11 h-11 transition-all duration-300 text-neutral-400 hover:text-cyan-400
+              rounded-full ${
+                isDark ? "hover:bg-slate-900" : "hover:bg-stone-200"
               }
             `}
           >
@@ -178,7 +169,7 @@ const ChatInput = () => {
                 />
               )
             ) : (
-              <Mic size={20} strokeWidth={2} />
+              <Mic size={20} />
             )}
           </button>
         </div>

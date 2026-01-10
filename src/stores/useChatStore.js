@@ -9,7 +9,7 @@ const useChatStore = create(
       messages: [],
       notifications: [],
       contactSearchResults: [],
-      
+
       socketConnected: false,
       isSearchingContacts: false,
       isLoadingChats: false,
@@ -94,6 +94,7 @@ const useChatStore = create(
               q: query,
             },
           });
+          // console.log(data);
           set({ contactSearchResults: data, isSearchingContacts: false });
         } catch (error) {
           console.error("Failed to search contacts", error);
@@ -110,6 +111,7 @@ const useChatStore = create(
         try {
           const { data } = await api.get("/chat/fetch");
           set({ chats: data, isLoadingChats: false });
+          // console.log(data)
         } catch (error) {
           console.error("Failed to fetch chats", error);
           set({ isLoadingChats: false });

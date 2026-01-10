@@ -6,9 +6,10 @@ import { Navigate } from "react-router-dom";
 import ChatHeader from "../messages/ChatHeader";
 import ChatInput from "../messages/ChatInput";
 import { AnimatePresence, motion } from "motion/react";
+import TypingIndicator from "../messages/TypingIndicator";
 
 const ChatScreen = () => {
-  const { selectedChat, isLoadingMessages } = useChatStore();
+  const { selectedChat, isLoadingMessages, isTyping } = useChatStore();
   const theme = useTheme();
   if (!selectedChat) {
     return (
@@ -45,8 +46,9 @@ const ChatScreen = () => {
         ) : (
           <MessageList />
         )}
+        {isTyping && <TypingIndicator />}
       </div>
-      <div className="py-4">
+      <div className="bg-transparent px-5">
         <ChatInput />
       </div>
     </motion.div>

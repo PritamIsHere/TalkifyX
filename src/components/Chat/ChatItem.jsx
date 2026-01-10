@@ -3,6 +3,7 @@ import { useTheme } from "../../theme/Theme";
 import { useThemeStore } from "../../stores/useThemeStore";
 import { Image } from "../../assets/image";
 import useChatStore from "../../stores/useChatStore";
+import { formatChatDate } from "../../util/dateUtils";
 
 export const ChatItem = ({ chat, user, onClick }) => {
   const theme = useTheme();
@@ -38,16 +39,13 @@ export const ChatItem = ({ chat, user, onClick }) => {
         <div className="flex justify-between items-center">
           <h3 className="font-semibold truncate">{user.username}</h3>
           <span className={`text-xs ${theme.textMuted}`}>
-            {new Date(chat.latestMessage?.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {formatChatDate(chat.latestMessage?.createdAt)}
           </span>
         </div>
 
         {/* Latest Message */}
         <div className={`flex items-center gap-2 text-sm text-cyan-600`}>
-          <CheckCheck size={16} />
+          {chat.latestMessage && <CheckCheck size={16} />}
           <p
             className={`truncate ${theme.textMuted}`}
             title={chat.latestMessage?.content}
