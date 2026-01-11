@@ -39,7 +39,7 @@ export const ChatItem = ({ chat, user, onClick }) => {
         <div className="flex justify-between items-center">
           <h3 className="font-semibold truncate">{user.username}</h3>
           <span className={`text-xs ${theme.textMuted}`}>
-            {formatChatDate(chat.latestMessage?.createdAt)}
+            {unreadCount === 0 && formatChatDate(chat.latestMessage?.createdAt)}
           </span>
         </div>
 

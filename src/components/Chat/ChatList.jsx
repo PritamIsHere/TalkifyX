@@ -310,6 +310,7 @@ const ChatList = () => {
                   stiffness: 400,
                   damping: 20,
                 }}
+                className="mb-1 last:mb-20"
               >
                 <Link to="/chat">
                   <ChatItem
