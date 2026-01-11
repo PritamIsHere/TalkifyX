@@ -2,7 +2,7 @@ import pic1 from "./pic1.jpg";
 import pic2 from "./pic2.jpg";
 import pic3 from "./pic3.jpg";
 import pic4 from "./pic4.jpg";
-import logo from "./app-logo.png";
+import logo from "../../public/favicon.svg";
 import defaultUser from "./default-user.avif";
 import group from "./group.png";
 
